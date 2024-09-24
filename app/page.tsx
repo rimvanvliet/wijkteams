@@ -1,15 +1,24 @@
-
-
+import React from "react";
 import dynamic from 'next/dynamic'
 
-const DynamicMap = dynamic(() => import('../components/Map'), {
-  ssr: false
+const DynamicWijkteamkaart = dynamic(() => import('../components/wijkteamkaart'), {
+    ssr: false
 });
 
+import {MarkerData, markerData} from "@/data/markerData"
+
 export default function Home() {
-  return (
-    <main>
-     <DynamicMap />
-    </main>
-  )
+
+    const filteredMarkerData: (querystring: string) => MarkerData[] = (querystring: string) => {
+        return markerData
+            .filter(marker =>
+                marker.name.includes(querystring) || marker.description?.includes(querystring)
+            )
+    }
+
+    return (
+        <main>
+            <DynamicWijkteamkaart markerData={filteredMarkerData('2023')}/>
+        </main>
+    )
 }

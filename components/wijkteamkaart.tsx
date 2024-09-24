@@ -4,15 +4,13 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import {MapContainer, Marker, Popup, TileLayer} from 'react-leaflet'
 
-import {useState} from 'react'
+import {MarkerData} from "@/data/markerData";
 
-import {data} from "@/data/Themas"
 import MarkerClusterGroup from "react-leaflet-cluster";
 
-const Map = () => {
+const Wijkteamkaart = ({markerData,}: { markerData: MarkerData[] }) => {
 
-    const [coord, setCoord] = useState(new L.LatLng(52.258039790602496, 6.182305555985334))
-    const markers = data
+    const coord = new L.LatLng(52.258039790602496, 6.182305555985334)
 
     return (
         <div>
@@ -25,7 +23,7 @@ const Map = () => {
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
                 <MarkerClusterGroup>
-                    {markers.map(marker =>
+                    {markerData.map(marker =>
                         <Marker
                             key={marker.id}
                             icon={
@@ -35,7 +33,8 @@ const Map = () => {
                                 })}
                             position={L.latLng(marker.coordinates[1], marker.coordinates[0])}>
                             <Popup>
-                                <div dangerouslySetInnerHTML={{ __html:  marker.name + (marker.description ? ('<br/>'+ marker.description) : ('')) }}/>
+                                <div
+                                    dangerouslySetInnerHTML={{__html: marker.name + (marker.description ? ('<br/>' + marker.description) : (''))}}/>
                             </Popup>
                         </Marker>)}
                 </MarkerClusterGroup>
@@ -44,4 +43,4 @@ const Map = () => {
     )
 }
 
-export default Map
+export default Wijkteamkaart

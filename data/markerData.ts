@@ -1,4 +1,13 @@
-export const data =
+export interface MarkerData {
+    id: string,
+    category: string,
+    name: string,
+    description?: string,
+    icon: string,
+    coordinates: number[]
+}
+
+export const markerData: MarkerData[] =
     [{
         "id": "c1cdcd5b-fb6e-48b7-a308-5848d47dd778",
         "category": "locaties",
