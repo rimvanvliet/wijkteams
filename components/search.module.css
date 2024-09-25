@@ -3,22 +3,21 @@
     border: solid 1px #ccc;
     border-radius: 4px;
     width: calc(100% - 20px);
-    margin: 10px;
+    margin: 10px auto;
     padding: 0 10px;
     outline: none;
 }
 .formGroup {
-    margin-left: 10px;
-    font-size: medium;
+    font-size: small;
+    font-family: Calibri, sans-serif;
 }
 .numFound {
-    margin-left: 10px;
+    margin-top: 0;
     color: #888;
     font-size: small;
 }
 .listItem {
-    margin-left: 10px;
-    width: 300px;
+    margin: 5px 0;
     color: #444;
     font-size: medium;
     text-wrap: nowrap;
@@ -26,12 +25,12 @@
     text-overflow: ellipsis;
 }
 .listContainer {
-    height: calc(100vh - 340px);
+    height: calc(100vh - 365px);
     overflow: hidden;
     overflow-y: scroll;
     border: solid 1px #ccc;
     border-radius: 4px;
     width: calc(100% - 20px);
-    margin: 10px;
-    padding: 0 5px;
+    padding: 10px;
+    list-style-type: none;
 }

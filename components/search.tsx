@@ -112,7 +112,7 @@ export default function Search({markerData}: { markerData: MarkerData[] }) {
                             onClose={() => toggleClick(undefined)}
                             open={openTooltip === index}
                             slotProps={{
-                                popper: {modifiers: [{name: 'offset', options: {offset: [0, -16],},},],},
+                                popper: {modifiers: [{name: 'offset', options: {offset: [0, -5],},},],},
                             }}
                             disableFocusListener
                             disableHoverListener
