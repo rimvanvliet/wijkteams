@@ -1,24 +1,44 @@
 import React from "react";
 import dynamic from 'next/dynamic'
 
+import {MarkerData, markerData} from "@/data/markerData"
+
+import styles from './page.module.css'
+
 const DynamicWijkteamkaart = dynamic(() => import('../components/wijkteamkaart'), {
     ssr: false
 });
+const DynamicSearch = dynamic(() => import('../components/search'), {
+    ssr: false
+});
 
-import {MarkerData, markerData} from "@/data/markerData"
+export default function Home({searchParams,}: { searchParams?: { query?: string; categories?: string[]; }; }) {
 
-export default function Home() {
+    const queryTokens = searchParams?.query || '';
+    const categories: string[] = searchParams?.categories || [];
 
-    const filteredMarkerData: (querystring: string) => MarkerData[] = (querystring: string) => {
-        return markerData
-            .filter(marker =>
-                marker.name.includes(querystring) || marker.description?.includes(querystring)
-            )
+    const filteredMarkerData: (queryTokenString: string) => MarkerData[] = (queryTokenString: string) => {
+        return markerData.filter(marker => {
+                return (categories.length === 0 || !categories.includes(marker.category)) &&
+                    queryTokenString.split(' ')
+                        .map(token =>
+                            (marker.name.toLowerCase().includes(token.toLowerCase()) ||
+                                marker.id.toLowerCase().includes(token.toLowerCase()) ||
+                                marker.description?.toLowerCase().includes(token.toLowerCase()) || false))
+                        .reduce((acc: boolean, value: boolean): boolean => {
+                            return acc && value
+                        });
+            }
+        )
     }
 
     return (
-        <main>
-            <DynamicWijkteamkaart markerData={filteredMarkerData('2023')}/>
+        <main className={styles.main}>
+            <div className={styles.sidePanel}>
+                <h1 className={styles.mainHeader}>WijkTeam Voorstad</h1>
+                <DynamicSearch markerData={filteredMarkerData(queryTokens)}/>
+            </div>
+            <DynamicWijkteamkaart markerData={filteredMarkerData(queryTokens)}/>
         </main>
     )
 }

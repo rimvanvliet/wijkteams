@@ -1,0 +1,37 @@
+.inputSearch {
+    height: 50px;
+    border: solid 1px #ccc;
+    border-radius: 4px;
+    width: calc(100% - 20px);
+    margin: 10px;
+    padding: 0 10px;
+    outline: none;
+}
+.formGroup {
+    margin-left: 10px;
+    font-size: medium;
+}
+.numFound {
+    margin-left: 10px;
+    color: #888;
+    font-size: small;
+}
+.listItem {
+    margin-left: 10px;
+    width: 300px;
+    color: #444;
+    font-size: medium;
+    text-wrap: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.listContainer {
+    height: calc(100vh - 340px);
+    overflow: hidden;
+    overflow-y: scroll;
+    border: solid 1px #ccc;
+    border-radius: 4px;
+    width: calc(100% - 20px);
+    margin: 10px;
+    padding: 0 5px;
+}

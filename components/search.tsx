@@ -1,36 +1,110 @@
 'use client';
 
-import { useSearchParams, usePathname, useRouter } from 'next/navigation';
+import {useSearchParams, usePathname, useRouter} from 'next/navigation';
 import {useDebouncedCallback} from "use-debounce";
 
-export default function Search({ placeholder }: { placeholder: string }) {
+import styles from './search.module.css'
+import {Checkbox, FormControlLabel, FormGroup, Tooltip} from "@mui/material";
+import React, {useEffect} from "react";
+import {MarkerData} from "@/data/markerData";
+
+export default function Search({markerData}: { markerData: MarkerData[] }) {
     const searchParams = useSearchParams();
     const pathname = usePathname();
-    const { replace } = useRouter();
+    const {replace} = useRouter();
 
-    const handleSearch = useDebouncedCallback((term: string) => {
+    const [categories, setCategories] = React.useState<string[]>([]);
+    const [query, setQuery] = React.useState<string>('');
+
+    useEffect(() => {
         const params = new URLSearchParams(searchParams);
-        if (term) {
-            params.set('query', term);
+        if (query) {
+            params.set('query', query);
         } else {
             params.delete('query');
         }
+        if (categories.length > 0) {
+            params.set('categories', JSON.stringify(categories));
+        } else {
+            params.delete('categories');
+        }
         replace(`${pathname}?${params.toString()}`);
+    }, [query, categories, searchParams, replace, pathname]);
+
+    const handleSearch = useDebouncedCallback((term: string) => {
+        setQuery(term)
     }, 300)
 
+    const updateBewonersinitieven = (event: React.ChangeEvent<HTMLInputElement>) => {
+        updateCategories(event.target.checked, 'bewonersinitiatieven');
+    }
+
+    const updateLocaties = (event: React.ChangeEvent<HTMLInputElement>) => {
+        updateCategories(event.target.checked, 'locaties');
+    }
+
+    const updateActiviteiten = (event: React.ChangeEvent<HTMLInputElement>) => {
+        updateCategories(event.target.checked, 'activiteiten');
+    }
+
+    const updateThemas = (event: React.ChangeEvent<HTMLInputElement>) => {
+        updateCategories(event.target.checked, 'themas');
+    }
+
+    function updateCategories(isChecked: boolean, category: string) {
+        if (isChecked) {
+            const index = categories.indexOf(category);
+            if (index > -1) {
+                categories.splice(index, 1)
+                setCategories([...categories]);
+            }
+        } else {
+            categories.push(category)
+            setCategories([...categories]);
+        }
+    }
+    const createToolTipText = (markerData: MarkerData) => {
+        return `(${markerData.category}) ${markerData.id} ${markerData.description ? markerData.description : ''}`
+    }
+
     return (
-        <div className="relative flex flex-1 flex-shrink-0">
-            <label htmlFor="search" className="sr-only">
-                Search
-            </label>
+        <div>
+            <FormGroup className={styles.formGroup}>
+                <FormControlLabel control={<Checkbox defaultChecked onChange={updateBewonersinitieven}/>}
+                                  label="Bewonersinitiatieven"/>
+                <FormControlLabel control={<Checkbox defaultChecked onChange={updateLocaties}/>}
+                                  label="Locaties"/>
+                <FormControlLabel control={<Checkbox defaultChecked onChange={updateActiviteiten}/>}
+                                  label="Activiteten"/>
+                <FormControlLabel control={<Checkbox defaultChecked onChange={updateThemas}/>}
+                                  label="Thema's"/>
+            </FormGroup>
+
             <input
-                className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
-                placeholder={placeholder}
+                className={styles.inputSearch}
+                placeholder={"Zoek ..."}
                 onChange={(e) => {
                     handleSearch(e.target.value);
                 }}
                 defaultValue={searchParams.get('query')?.toString()}
             />
+
+            <p className={styles.numFound}>Aantal gevonden {markerData.length}</p>
+            <br/>
+            <ul className={styles.listContainer}>
+                {markerData.map(marker => (
+                    <li key={marker.id}>
+                        <Tooltip placement={"top-start"}
+                                 title={createToolTipText(marker)}
+                                 slotProps={{
+                                     popper: {modifiers: [{name: 'offset', options: {offset: [0, -16],},},],},
+                                 }}>
+                            <div className={styles.listItem}>{marker.name}</div>
+                        </Tooltip>
+                    </li>
+                ))}
+            </ul>
+
         </div>
     );
 }
