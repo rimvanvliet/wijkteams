@@ -15,6 +15,8 @@ export default function Search({markerData}: { markerData: MarkerData[] }) {
 
     const [categories, setCategories] = React.useState<string[]>([]);
     const [query, setQuery] = React.useState<string>('');
+    const [openTooltip, setOpenTooltipValue] = React.useState<number | undefined>(undefined);
+
 
     useEffect(() => {
         const params = new URLSearchParams(searchParams);
@@ -63,9 +65,19 @@ export default function Search({markerData}: { markerData: MarkerData[] }) {
             setCategories([...categories]);
         }
     }
+
     const createToolTipText = (markerData: MarkerData) => {
-        return `(${markerData.category}) ${markerData.id} ${markerData.description ? markerData.description : ''}`
+        return <>
+            (Categorie: {markerData.category})<br/>
+            {markerData.name}:<br/>
+            {markerData.description ? markerData.description : 'Geen beschrijving beschikbaar'}
+        </>
     }
+
+    const toggleClick = (index?: number) => {
+        setOpenTooltipValue(openTooltip === index ? undefined : index);
+    };
+
 
     return (
         <div>
@@ -90,16 +102,22 @@ export default function Search({markerData}: { markerData: MarkerData[] }) {
             />
 
             <p className={styles.numFound}>Aantal gevonden {markerData.length}</p>
-            <br/>
+
             <ul className={styles.listContainer}>
-                {markerData.map(marker => (
+                {markerData.map((marker, index) => (
                     <li key={marker.id}>
-                        <Tooltip placement={"top-start"}
-                                 title={createToolTipText(marker)}
-                                 slotProps={{
-                                     popper: {modifiers: [{name: 'offset', options: {offset: [0, -16],},},],},
-                                 }}>
-                            <div className={styles.listItem}>{marker.name}</div>
+                        <Tooltip
+                            placement={"top-start"}
+                            title={createToolTipText(marker)}
+                            onClose={() => toggleClick(undefined)}
+                            open={openTooltip === index}
+                            slotProps={{
+                                popper: {modifiers: [{name: 'offset', options: {offset: [0, -16],},},],},
+                            }}
+                            disableFocusListener
+                            disableHoverListener
+                            disableTouchListener>
+                            <div onClick={() => toggleClick(index)} className={styles.listItem}>{marker.name}</div>
                         </Tooltip>
                     </li>
                 ))}
