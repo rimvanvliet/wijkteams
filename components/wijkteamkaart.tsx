@@ -2,7 +2,7 @@
 import React, {useEffect} from "react";
 
 import L from 'leaflet'
-import {MapContainer, Marker, Popup, TileLayer} from 'react-leaflet'
+import {MapContainer, Marker, Popup, TileLayer, useMap} from 'react-leaflet'
 import MarkerClusterGroup from "react-leaflet-cluster";
 
 import 'leaflet/dist/leaflet.css'
@@ -15,14 +15,21 @@ const Wijkteamkaart = ({markerData,}: { markerData: MarkerData[] }) => {
     const [center, setCenter] = React.useState(initialCenter)
     const [zoomLevel, setZoomLevel] = React.useState(14)
 
+    const RecenterAutomatically = (latlng: {latlng: L.LatLng, zoomLevel:number}) => {
+        const map = useMap();
+        useEffect(() => {
+            map.setView(latlng.latlng, latlng.zoomLevel);
+        }, [latlng]);
+        return null;
+    }
     useEffect(() =>{
         if (markerData.length === 1 ) {
             setCenter(L.latLng(markerData[0].coordinates[1], markerData[0].coordinates[0]))
-            setZoomLevel(20)
+            setZoomLevel(15)
         } else {
             setCenter(initialCenter)
+            setZoomLevel(14)
         }
-
     },[markerData])
 
 
@@ -54,6 +61,7 @@ const Wijkteamkaart = ({markerData,}: { markerData: MarkerData[] }) => {
                         </Popup>
                     </Marker>)}
             </MarkerClusterGroup>
+            <RecenterAutomatically latlng={center} zoomLevel={zoomLevel} />
         </MapContainer>
     )
 }

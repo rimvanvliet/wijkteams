@@ -4,7 +4,17 @@ import {useSearchParams, usePathname, useRouter} from 'next/navigation';
 import {useDebouncedCallback} from "use-debounce";
 
 import styles from './search.module.css'
-import {Checkbox, FormControlLabel, FormGroup, Tooltip} from "@mui/material";
+import {
+    Checkbox,
+    FormControlLabel,
+    FormGroup,
+    IconButton,
+    InputBase,
+    List,
+    ListItem,
+    Paper,
+} from "@mui/material";
+import ClearIcon from '@mui/icons-material/Clear';
 import React, {useEffect} from "react";
 import {MarkerData} from "@/data/markerData";
 
@@ -15,26 +25,40 @@ export default function Search({markerData}: { markerData: MarkerData[] }) {
 
     const [categories, setCategories] = React.useState<string[]>([]);
     const [query, setQuery] = React.useState<string>('');
-    const [openTooltip, setOpenTooltipValue] = React.useState<number | undefined>(undefined);
-
 
     useEffect(() => {
         const params = new URLSearchParams(searchParams);
-        if (query) {
-            params.set('query', query);
+        const categoriesParams = params.get('categories')
+        if (!categoriesParams?.length) {
+            setCategories([])
+        } else {
+            setCategories(JSON.parse(categoriesParams));
+        }
+        const queryParams = params.get('query')
+        if (!queryParams?.length) {
+            setQuery('')
+        } else {
+            setQuery(queryParams);
+        }
+    }, [])
+
+    const handleSearch = (term: string) => {
+        if (term) {
+            setQuery(term)
+        } else {
+            setQuery('')
+        }
+        updateSearchParam(term)
+    }
+
+    const updateSearchParam = useDebouncedCallback((term: string) => {
+        const params = new URLSearchParams(searchParams);
+        if (term) {
+            params.set('query', term);
         } else {
             params.delete('query');
         }
-        if (categories.length > 0) {
-            params.set('categories', JSON.stringify(categories));
-        } else {
-            params.delete('categories');
-        }
         replace(`${pathname}?${params.toString()}`);
-    }, [query, categories, searchParams, replace, pathname]);
-
-    const handleSearch = useDebouncedCallback((term: string) => {
-        setQuery(term)
     }, 300)
 
     const updateBewonersinitieven = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -54,6 +78,7 @@ export default function Search({markerData}: { markerData: MarkerData[] }) {
     }
 
     function updateCategories(isChecked: boolean, category: string) {
+        const params = new URLSearchParams(searchParams);
         if (isChecked) {
             const index = categories.indexOf(category);
             if (index > -1) {
@@ -64,6 +89,12 @@ export default function Search({markerData}: { markerData: MarkerData[] }) {
             categories.push(category)
             setCategories([...categories]);
         }
+        if (categories.length > 0) {
+            params.set('categories', JSON.stringify(categories));
+        } else {
+            params.delete('categories');
+        }
+        replace(`${pathname}?${params.toString()}`);
     }
 
     const createToolTipText = (markerData: MarkerData) => {
@@ -74,55 +105,87 @@ export default function Search({markerData}: { markerData: MarkerData[] }) {
         </>
     }
 
-    const toggleClick = (index?: number) => {
-        setOpenTooltipValue(openTooltip === index ? undefined : index);
-    };
+    const focusOnMarker = (markerName: string) => {
+        const params = new URLSearchParams(searchParams);
+        params.set('query', markerName);
+        setQuery(markerName)
+        replace(`${pathname}?${params.toString()}`);
 
+    }
+
+    const isChecked = (category: string): boolean => {
+        const params = new URLSearchParams(searchParams);
+        const categoryParams = params.get('categories')
+        if (categoryParams === null) return true;
+        else return !categoryParams.includes(category);
+    }
 
     return (
-        <div>
+        <>
             <FormGroup className={styles.formGroup}>
-                <FormControlLabel control={<Checkbox defaultChecked onChange={updateBewonersinitieven}/>}
-                                  label="Bewonersinitiatieven"/>
-                <FormControlLabel control={<Checkbox defaultChecked onChange={updateLocaties}/>}
-                                  label="Locaties"/>
-                <FormControlLabel control={<Checkbox defaultChecked onChange={updateActiviteiten}/>}
-                                  label="Activiteten"/>
-                <FormControlLabel control={<Checkbox defaultChecked onChange={updateThemas}/>}
-                                  label="Thema's"/>
+                <FormControlLabel
+                    control={<Checkbox
+                        checked={isChecked('bewonersinitiatieven')}
+                        onChange={updateBewonersinitieven}/>}
+                    label={<span className={styles.listItem}>Bewonersinitiatieven</span>}/>
+                <FormControlLabel
+                    control={<Checkbox
+                        checked={isChecked('locaties')}
+                        onChange={updateLocaties}/>}
+                    label={<span className={styles.listItem}>Locaties</span>}/>
+                <FormControlLabel
+                    control={<Checkbox
+                        checked={isChecked('activiteiten')}
+                        onChange={updateActiviteiten}/>}
+                    label={<span className={styles.listItem}>Activiteiten</span>}/>
+                <FormControlLabel
+                    control={<Checkbox
+                        checked={isChecked('themas')}
+                        onChange={updateThemas}/>}
+                    label={<span className={styles.listItem}>Thema&apos;s</span>}/>
             </FormGroup>
 
-            <input
-                className={styles.inputSearch}
-                placeholder={"Zoek ..."}
-                onChange={(e) => {
-                    handleSearch(e.target.value);
-                }}
-                defaultValue={searchParams.get('query')?.toString()}
-            />
+            <Paper
+                component="form"
+                sx={{p: '2px 4px', display: 'flex', alignItems: 'center'}}
+            >
+                <InputBase
+                    className={styles.inputSearch}
+                    placeholder={"Zoek ..."}
+                    onChange={(e) => {
+                        handleSearch(e.target.value);
+                    }}
+                    value={query || ''}
+                />
+                <IconButton
+                    type="button" sx={{p: '10px'}}
+                    onClick={() => {
+                        handleSearch('')
+                    }}
+                    aria-label="Maak zoekveld leeg">
+                    <ClearIcon/>
+                </IconButton>
+            </Paper>
 
             <p className={styles.numFound}>Aantal gevonden {markerData.length}</p>
 
-            <ul className={styles.listContainer}>
-                {markerData.map((marker, index) => (
-                    <li key={marker.id}>
-                        <Tooltip
-                            placement={"top-start"}
-                            title={createToolTipText(marker)}
-                            onClose={() => toggleClick(undefined)}
-                            open={openTooltip === index}
-                            slotProps={{
-                                popper: {modifiers: [{name: 'offset', options: {offset: [0, -5],},},],},
-                            }}
-                            disableFocusListener
-                            disableHoverListener
-                            disableTouchListener>
-                            <div onClick={() => toggleClick(index)} className={styles.listItem}>{marker.name}</div>
-                        </Tooltip>
-                    </li>
-                ))}
-            </ul>
-
-        </div>
+            <Paper
+                component="form"
+                sx={{p: '2px 4px', display: 'flex', alignItems: 'center'}}
+            >
+                <List
+                    dense
+                    className={styles.listContainer}>
+                    {markerData.map((marker) => (
+                        <ListItem
+                            className={styles.listItem}
+                            key={marker.id}>
+                            <div onClick={() => focusOnMarker(marker.name)}
+                                 >{marker.name}</div>
+                        </ListItem>
+                    ))}
+                </List>
+            </Paper>
+        </>
     );
 }

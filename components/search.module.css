@@ -1,6 +1,5 @@
 .inputSearch {
     height: 50px;
-    border: solid 1px #ccc;
     border-radius: 4px;
     width: calc(100% - 20px);
     margin: 10px auto;
@@ -8,29 +7,30 @@
     outline: none;
 }
 .formGroup {
-    font-size: small;
+    font-size: x-small;
     font-family: Calibri, sans-serif;
 }
 .numFound {
-    margin-top: 0;
+    margin-top: 5px;
     color: #888;
     font-size: small;
 }
 .listItem {
     margin: 5px 0;
+    padding: 0;
     color: #444;
     font-size: medium;
     text-wrap: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    cursor: pointer;
 }
 .listContainer {
-    height: calc(100vh - 365px);
+    height: calc(100vh - 420px);
     overflow: hidden;
     overflow-y: scroll;
-    border: solid 1px #ccc;
     border-radius: 4px;
     width: calc(100% - 20px);
-    padding: 10px;
+    padding-left: 10px;
     list-style-type: none;
 }
