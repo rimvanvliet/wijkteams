@@ -2,7 +2,7 @@
 import React, {useEffect} from "react";
 
 import L from 'leaflet'
-import {MapContainer, Marker, Popup, TileLayer, useMap} from 'react-leaflet'
+import {MapContainer, Marker, Popup, TileLayer, useMap, useMapEvents} from 'react-leaflet'
 import MarkerClusterGroup from "react-leaflet-cluster";
 
 import 'leaflet/dist/leaflet.css'
@@ -15,23 +15,35 @@ const Wijkteamkaart = ({markerData,}: { markerData: MarkerData[] }) => {
     const [center, setCenter] = React.useState(initialCenter)
     const [zoomLevel, setZoomLevel] = React.useState(14)
 
-    const RecenterAutomatically = (latlng: {latlng: L.LatLng, zoomLevel:number}) => {
-        const map = useMap();
-        useEffect(() => {
-            map.setView(latlng.latlng, latlng.zoomLevel);
-        }, [latlng]);
-        return null;
-    }
-    useEffect(() =>{
-        if (markerData.length === 1 ) {
+    useEffect(() => {
+        if (markerData.length === 1) {
             setCenter(L.latLng(markerData[0].coordinates[1], markerData[0].coordinates[0]))
             setZoomLevel(15)
         } else {
             setCenter(initialCenter)
             setZoomLevel(14)
         }
-    },[markerData])
+    }, [markerData])
 
+    const RecenterAutomatically = () => {
+        const map = useMap();
+        useEffect(() => {
+            map.setView(center, zoomLevel);
+        }, [center, zoomLevel]);
+        return null;
+    }
+
+    const AltClickLocator = () => {
+        const mapEvent = useMapEvents({
+            click: (event) => {
+                if (event.originalEvent.altKey) {
+                    mapEvent.locate()
+                    console.log('event', event.latlng)
+                }
+            },
+        })
+        return null
+    }
 
     return (
         <MapContainer
@@ -57,11 +69,12 @@ const Wijkteamkaart = ({markerData,}: { markerData: MarkerData[] }) => {
                         position={L.latLng(marker.coordinates[1], marker.coordinates[0])}>
                         <Popup>
                                 <span
-                                    dangerouslySetInnerHTML={{__html: marker.name + (marker.description ? ('<br/>' + marker.description) : (''))}}/>
+                                    dangerouslySetInnerHTML={{__html: '(' + marker.category + ')<br/>' + marker.name + (marker.description ? ('<br/>' + marker.description) : (''))}}/>
                         </Popup>
                     </Marker>)}
             </MarkerClusterGroup>
-            <RecenterAutomatically latlng={center} zoomLevel={zoomLevel} />
+            <RecenterAutomatically/>
+            <AltClickLocator/>
         </MapContainer>
     )
 }

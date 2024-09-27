@@ -1,6 +1,6 @@
 'use client';
 
-import {useSearchParams, usePathname, useRouter} from 'next/navigation';
+import {usePathname, useRouter, useSearchParams} from 'next/navigation';
 import {useDebouncedCallback} from "use-debounce";
 
 import styles from './search.module.css'
@@ -12,6 +12,7 @@ import {
     InputBase,
     List,
     ListItem,
+    ListItemText,
     Paper,
 } from "@mui/material";
 import ClearIcon from '@mui/icons-material/Clear';
@@ -97,20 +98,11 @@ export default function Search({markerData}: { markerData: MarkerData[] }) {
         replace(`${pathname}?${params.toString()}`);
     }
 
-    const createToolTipText = (markerData: MarkerData) => {
-        return <>
-            (Categorie: {markerData.category})<br/>
-            {markerData.name}:<br/>
-            {markerData.description ? markerData.description : 'Geen beschrijving beschikbaar'}
-        </>
-    }
-
-    const focusOnMarker = (markerName: string) => {
+    const setFocusOnMarker = (markerName: string) => {
         const params = new URLSearchParams(searchParams);
         params.set('query', markerName);
         setQuery(markerName)
         replace(`${pathname}?${params.toString()}`);
-
     }
 
     const isChecked = (category: string): boolean => {
@@ -159,9 +151,7 @@ export default function Search({markerData}: { markerData: MarkerData[] }) {
                 />
                 <IconButton
                     type="button" sx={{p: '10px'}}
-                    onClick={() => {
-                        handleSearch('')
-                    }}
+                    onClick={() => {handleSearch('')}}
                     aria-label="Maak zoekveld leeg">
                     <ClearIcon/>
                 </IconButton>
@@ -177,11 +167,13 @@ export default function Search({markerData}: { markerData: MarkerData[] }) {
                     dense
                     className={styles.listContainer}>
                     {markerData.map((marker) => (
-                        <ListItem
-                            className={styles.listItem}
-                            key={marker.id}>
-                            <div onClick={() => focusOnMarker(marker.name)}
-                                 >{marker.name}</div>
+                        <ListItem key={marker.id}>
+                            <ListItemText
+                                className={styles.listItem}
+                                onClick={() => setFocusOnMarker(marker.name)}
+                                primary={`(${marker.category.slice(0,1).toUpperCase()}) ${marker.name}`}
+                                secondary={marker.description ? marker.description : ''}
+                            />
                         </ListItem>
                     ))}
                 </List>
