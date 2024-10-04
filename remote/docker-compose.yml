@@ -1,0 +1,44 @@
+services:
+  
+  wt-wijkteams:
+    image: rimvanvliet/wt-wijkteams:${WT_BOX_VERSION}
+    container_name: wt-wijkteams
+    environment:
+      - PGUSER=wt
+      - PGPASSWORD=wt
+      - PGHOST=wt-database
+      - PGPORT=5432
+      - PGDATABASE=wt
+    ports:
+      - "3000:3000"
+    depends_on:
+      - wt-database
+
+  wt-database:
+    image: rimvanvliet/wt-database:${WT_BOX_VERSION}
+    container_name: wt-database
+    environment:
+      - TZ=Europe/Amsterdam
+      - POSTGRES_USER=wt
+      - POSTGRES_PASSWORD=wt
+      - POSTGRES_DB=wt
+    volumes:
+      - wt-database:/bitnami/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: always
+
+  wt-nginx:
+    image: rimvanvliet/wt-nginx:${WT_BOX_VERSION}
+    container_name: wt-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    restart: always
+    volumes:
+      - wt-acme:/var/www/certbot/:rw
+      - wt-certs:/etc/nginx/ssl/:rw
+volumes:
+  wt-database:
+  wt-acme:
+  wt-certs:

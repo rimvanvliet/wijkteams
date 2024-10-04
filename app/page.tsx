@@ -12,14 +12,14 @@ const DynamicSearch = dynamic(() => import('../components/search'), {
     ssr: false
 });
 
+const markerData = await fetchMarkerData();
+
 export default async function Home({searchParams,}: { searchParams?: { query?: string; categories?: string[]; }; }) {
-    const markerData = await fetchMarkerData();
 
     const queryTokens = searchParams?.query || '';
     const categories: string[] = searchParams?.categories || [];
 
-
-    const filteredMarkerData: (queryTokenString: string) => MarkerData[] = (queryTokenString: string) => {
+    const filterMarkerData: (queryTokenString: string) => MarkerData[] = (queryTokenString: string) => {
         return markerData?.filter(marker => {
                 return (categories.length === 0 || !categories.includes(marker.category)) &&
                     queryTokenString.split(' ')
@@ -34,13 +34,15 @@ export default async function Home({searchParams,}: { searchParams?: { query?: s
         )
     }
 
+    const filteredMarkerData = filterMarkerData(queryTokens)
+
     return (
         <main className={styles.main}>
             <div className={styles.sidePanel}>
                 <h1 className={styles.mainHeader}>WijkTeam Voorstad</h1>
-                <DynamicSearch markerData={filteredMarkerData(queryTokens)}/>
+                <DynamicSearch markerData={filteredMarkerData}/>
             </div>
-            <DynamicWijkteamkaart markerData={filteredMarkerData(queryTokens)}/>
+            <DynamicWijkteamkaart markerData={filteredMarkerData}/>
         </main>
     )
 }

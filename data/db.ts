@@ -1,9 +1,10 @@
 import {Pool} from 'pg';
 
-export const pool: Pool = new Pool({
-    user:'wt',
-    password:'wt',
-    host:'127.0.0.1',
+export const pool: Pool = new Pool(
+    {
+    user: process.env.PGUSER,
+    password:process.env.PGPASSWORD,
+    host:process.env.PGHOST,
     port:5432,
-    database: 'wt',
+    database:process.env.PGDATABASE,
 })

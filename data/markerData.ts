@@ -1,5 +1,8 @@
+'use server';
+
 import {pool} from './db'
 import {randomUUID} from "node:crypto";
+import {revalidatePath} from "next/cache";
 
 export interface MarkerData {
     id: string,
@@ -25,8 +28,8 @@ export async function insertMarkerData(markerData: MarkerData) {
         await pool.query(
             'INSERT INTO marker_data VALUES\n' +
             `   (\'${id}\', \'${markerData.category}\', \'${markerData.name}\', ` +
-                `${markerData.description ? "\'"+ markerData.description +"\'" : "NULL" }, ` +
-                `\'${markerData.icon}\', point(${markerData.coordinates[0]},${markerData.coordinates[1]}));`
+            `${markerData.description ? "\'" + markerData.description + "\'" : "NULL"}, ` +
+            `\'${markerData.icon}\', point(${markerData.coordinates[0]},${markerData.coordinates[1]}));`
         )
     } catch (error) {
         console.error(error)
@@ -49,7 +52,7 @@ export async function updateMarkerData(markerData: MarkerData) {
             'UPDATE marker_data SET ' +
             '(category, name, description, icon, coordinates) = \n' +
             `   (\'${markerData.category}\', \'${markerData.name}\', ` +
-            `${markerData.description ? "\'"+ markerData.description +"\'" : "NULL" }, ` +
+            `${markerData.description ? "\'" + markerData.description + "\'" : "NULL"}, ` +
             `\'${markerData.icon}\', point(${markerData.coordinates[0]},${markerData.coordinates[1]}))\n` +
             `WHERE id = \'${markerData.id}\';`
         )
@@ -58,18 +61,22 @@ export async function updateMarkerData(markerData: MarkerData) {
     }
 }
 
-export async function deleteMarkerData(markerData: MarkerData) {
+export async function deleteMarkerData(markerDataId: string) {
+    console.log(`up to deleting ${markerDataId}`);
     try {
-        const result = await pool.query(`DELETE FROM marker_data WHERE id = \'${markerData.id}\';`)
-        return convertToMarkerData(result.rows);
+        await pool.query(`DELETE
+                          FROM marker_data
+                          WHERE id = \'${markerDataId}\';`)
     } catch (error) {
         console.error(error)
-        return []
     }
+    console.log(`deleted ${markerDataId}`);
+    revalidatePath('/');
 }
 
-const convertToMarkerData = (databaseData: DatabaseMarkerData[]) => databaseData.map(marker => {
-        return {
+const convertToMarkerData: (databaseData: DatabaseMarkerData[]) => MarkerData[] =
+    (databaseData: DatabaseMarkerData[]) => databaseData.map(marker => {
+        return <MarkerData>{
             id: marker.id,
             category: marker.category,
             name: marker.name,

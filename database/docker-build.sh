@@ -1,3 +1,12 @@
 #!/usr/bin/env bash
 
-docker build -t rimvanvliet/wt-database:0.0.1 .
+echo version: ${VERSION}
+echo platform: ${PLATFORM}
+
+pushd database
+
+docker build \
+     --build-arg PLATFORM=${PLATFORM}  \
+     -t rimvanvliet/wt-database:${VERSION} .
+
+popd

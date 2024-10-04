@@ -12,12 +12,14 @@ import {
     InputBase,
     List,
     ListItem,
+    ListItemIcon,
     ListItemText,
     Paper,
 } from "@mui/material";
 import ClearIcon from '@mui/icons-material/Clear';
 import React, {useEffect} from "react";
 import {MarkerData} from "@/data/markerData";
+import Image from 'next/image'
 
 export default function Search({markerData}: { markerData: MarkerData[] }) {
     const searchParams = useSearchParams();
@@ -138,7 +140,7 @@ export default function Search({markerData}: { markerData: MarkerData[] }) {
             </FormGroup>
 
             <Paper
-                component="form"
+                // component="form"
                 sx={{p: '2px 4px', display: 'flex', alignItems: 'center'}}
             >
                 <InputBase
@@ -151,7 +153,9 @@ export default function Search({markerData}: { markerData: MarkerData[] }) {
                 />
                 <IconButton
                     type="button" sx={{p: '10px'}}
-                    onClick={() => {handleSearch('')}}
+                    onClick={() => {
+                        handleSearch('')
+                    }}
                     aria-label="Maak zoekveld leeg">
                     <ClearIcon/>
                 </IconButton>
@@ -160,18 +164,27 @@ export default function Search({markerData}: { markerData: MarkerData[] }) {
             <p className={styles.numFound}>Aantal gevonden {markerData.length}</p>
 
             <Paper
-                component="form"
+                // component="form"
                 sx={{p: '2px 4px', display: 'flex', alignItems: 'center'}}
             >
                 <List
                     dense
                     className={styles.listContainer}>
                     {markerData.map((marker) => (
-                        <ListItem key={marker.id}>
+                        <ListItem key={marker.id}
+                                  className={styles.listItem}
+                                  onClick={() => setFocusOnMarker(marker.name)}>
+                            {/*secondaryAction={*/}
+                            {/*    <DeleteMarker id={marker.id}/>*/}
+                            {/*}>*/}
+                            {/*<IconButton>*/}
+                            {/*    <EditIcon/>*/}
+                            {/*</IconButton>*/}
+                            <ListItemIcon>
+                                <Image width={25} height={25} src={`/${marker.icon}`} alt={marker.icon}/>
+                            </ListItemIcon>
                             <ListItemText
-                                className={styles.listItem}
-                                onClick={() => setFocusOnMarker(marker.name)}
-                                primary={`(${marker.category.slice(0,1).toUpperCase()}) ${marker.name}`}
+                                primary={`${marker.name}`}
                                 secondary={marker.description ? marker.description : ''}
                             />
                         </ListItem>

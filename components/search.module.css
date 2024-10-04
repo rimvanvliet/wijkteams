@@ -30,7 +30,10 @@
     overflow: hidden;
     overflow-y: scroll;
     border-radius: 4px;
-    width: calc(100% - 20px);
+    width: calc(100%);
     padding-left: 10px;
     list-style-type: none;
+}
+.buttons {
+    display: flex;
 }
