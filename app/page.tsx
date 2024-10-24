@@ -39,7 +39,7 @@ export default async function Home({searchParams,}: { searchParams?: { query?: s
     return (
         <main className={styles.main}>
             <div className={styles.sidePanel}>
-                <h1 className={styles.mainHeader}>WijkTeam Voorstad</h1>
+                <h1 className={styles.mainHeader}>WijkTeam Deventer Voorstad</h1>
                 <DynamicSearch markerData={filteredMarkerData}/>
             </div>
             <DynamicWijkteamkaart markerData={filteredMarkerData}/>

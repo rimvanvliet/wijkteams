@@ -3,12 +3,12 @@ export
 
 # Dev
 dev-wt-wijkteams-build: export VERSION=${WT_DEV_VERSION}
-dev-wt-wijkteams-build: export PLATFORM=linux/arm64
+dev-wt-wijkteams-build: export PLATFORM=linux/amd64
 dev-wt-wijkteams-build:
 	./docker-build.sh
 
 dev-wt-database-build: export VERSION=${WT_DEV_VERSION}
-dev-wt-database-build: export PLATFORM=linux/arm64
+dev-wt-database-build: export PLATFORM=linux/amd64
 dev-wt-database-build:
 	./database/docker-build.sh
 
